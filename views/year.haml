@@ -1,0 +1,59 @@
+%script{:type => "text/javascript"}
+  :plain
+    $(function() {
+  - @page.items.each do |genre|
+    :plain
+      $('##{genre}_movies').data('cur_page', 1);
+  :plain
+    });
+%h2= "Movies in Time - #{@year}"
+.box
+  .left.selector
+    - if @page.previous
+      %a{:href => url("/#{@year}/page/#{@page.previous}")} <--
+  #genres
+    - @page.items.each do |genre|
+      .genre
+        %h3= genre
+        .left.selector
+          %button{:type => "submit", :value => "#{genre}", :class => "prev", :id => "#{genre}_prev"}
+        %div{:class => "movies", :id => "#{genre}_movies"}
+          - @movies[genre].each do |movie|
+            %a{:href => url("/movie/#{movie.title_url}")}= movie.title
+        .right.selector
+          %button{:type => "submit", :value => "#{genre}", :class => "next", :id => "#{genre}_next"}
+  .right.selector
+    - if @page.next
+      %a{:href => url("/#{@year}/page/#{@page.next}")} -->
+%script{:type => "text/javascript"}
+  - @page.items.each do |genre|
+    :plain
+      $('##{genre}_prev').click(function() {
+        var prev = $('##{genre}_movies').data('cur_page') - 1;
+        if (prev == 0)
+          $('##{genre}_prev').hide();
+        else {
+          $('##{genre}_prev').show();
+          $.get('/#{@year}/genre/#{genre}/page/' + prev,
+            function(movies) {
+              for (var i = 0; i < movies.length; i++) {
+                $('##{genre}_movies').html("<a href='/movies/" + movies[i].title_url + "'>" + movies[i].title + "</a>");
+              }
+            }, "json");
+          $('##{genre}_movies').data('cur_page', prev);
+          $('##{genre}_next').show();
+        }
+      });
+      $('##{genre}_next').click(function() {
+        var next = $('##{genre}_movies').data('cur_page') + 1;
+        $.get('/#{@year}/genre/#{genre}/page/' + next,
+          function(data) {
+            var movies = data.movies;
+            for (var i = 0; i < movies.length; i++) {
+              var url = encodeURI(movies[i].title);
+              $('##{genre}_movies').html("<a href='/movies/" + url + "'>" + movies[i].title + "</a>");
+            }
+          }, "json");
+        $('##{genre}_movies').data('cur_page', next);
+        $('##{genre}_prev').show();
+      });

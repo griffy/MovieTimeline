@@ -1,0 +1,14 @@
+%h2= "Movies in Time - #{@year}"
+.box
+  .left.selector
+    - if @page.previous
+      %a{:href => url("/#{@year}/page/#{@page.previous}")} <--
+  #genres
+    - @page.items.each do |genre|
+      .genre
+        %h3= genre
+        - @movies[genre].each do |movie|
+          %a{:href => url("/movie/#{movie}")}= movie
+  .right.selector
+    - if @page.next
+      %a{:href => url("/#{year}/page/#{@page.next}")} -->

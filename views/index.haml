@@ -1,0 +1,11 @@
+%h2 Movies in Time
+.box
+  .left.selector
+    - if @page.previous
+      %a{:href => url("/page/#{@page.previous}")} <--
+  #timeline
+    - @page.items.each do |year|
+      %a{:href => url("/#{year}")}= year.to_s
+  .right.selector
+    - if @page.next
+      %a{:href => url("/page/#{@page.next}")} -->
